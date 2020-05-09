@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-security
+  labels:
+    app: postgres
+data:
+  db.user.name: postgresadmin
+  db.user.password: admin123
+
+
+#kubectl create secret generic db-security \
+  #	--from-literal=db.user.name=nebrass \
+  #	--from-literal=db.user.password=password

@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: manage-users
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: manage-users
+      tier: backend
+      track: stable
+  template:
+    metadata:
+      labels:
+        app: manage-users
+        tier: backend
+        track: stable
+    spec:
+      containers:
+        - name: manage-users
+          image: ajaira/manage-users:6.0.0
+          env:
+            - name: POSTGRES_SERVICE
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: postgres.service.name
+            - name: POSTGRES_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: postgres.db.name
+            - name: POSTGRES_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-security
+                  key: db.user.name
+            - name: POSTGRES_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-security
+                  key: db.user.password
+
+          ports:
+            - name: http
+              containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: manage-users
+spec:
+  selector:
+    app: manage-users
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8080
+  type: LoadBalancer
+
+
+
